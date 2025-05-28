@@ -2,8 +2,10 @@
 
 class Greetings
   def self.hello_world
-    "Hello, world!"
+    'Hello, world!'
   end
 end
 
 puts Greetings.hello_world
+
+
