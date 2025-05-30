@@ -1,0 +1,76 @@
+<html>
+  <body>
+    <div aria-level="2" role="heading">
+      <span>Sample Title</span>
+    </div>
+    <div style>
+      <a href="/link1">
+        <img id="image_id_one" alt="Sample Item 1" src="data:image/jpeg;base64,/9j/89WFEW9FUE8W9H829" />
+        <div>
+          <div>1889</div>
+        </div>
+      </a>
+    </div>
+    <div style>
+      <a href="/link2">
+        <img id="image_id_two" alt="Sample Item 2" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD" />
+        <div>
+        </div>
+      </a>
+    </div>
+      <div>
+        <div>
+          <div role="presentation">
+            <div>
+              <a href="/link3">
+              <wp-grid-tile>
+                <div>
+                  <img id="image_id_three" src="data:image/jpeg;base64,/9j/SDS9F0UW90EJFEW0" />
+                </div>
+                <div>
+                  <div>Sample Item 3</div>
+                  <div>1993</div>
+                </div>
+              </wp-grid-view>
+                </a>
+            </div>
+          </div>
+          <div role="presentation">
+            <div>
+              <a href="/link4">
+              <wp-grid-tile>
+                <div>
+                  <img id="image_id_four" src="data:image/jpeg;base64,/9j/DSJFOIEWFJO90W9709" />
+                </div>
+                <div>
+                  <div>Sample Item 4</div>
+                  <div></div>
+                </div>
+              </wp-grid-view>
+                </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        var s = 'data:image/jpeg;base64,/9j/SampleOne';
+        var ii = ['image_id_one'];
+        _setImagesSrc(ii, s);
+      </script>
+      <script>
+        var s = 'data:image/jpeg;base64,/9j/SampleTwo';
+        var ii = ['image_id_two'];
+        _setImagesSrc(ii, s);
+      </script>
+      <script>
+        var s = 'data:image/jpeg;base64,/9j/SampleThree';
+        var ii = ['image_id_three'];
+        _setImagesSrc(ii, s);
+      </script>
+      <script>
+        var s = 'data:image/jpeg;base64,/9j/SampleFour';
+        var ii = ['image_id_four'];
+        _setImagesSrc(ii, s);
+      </script>
+  </body>
+</html>

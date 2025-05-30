@@ -4,6 +4,8 @@ require 'nokogiri'
 
 module GoogleSearch
   class Parser
+    BOOK_ALBUM_DETAIL_SELECTOR = 'wp-grid-tile > div:not(:has(img))'
+    # This class is responsible for parsing Google SRP HTML files to scrape info from the result card grid/carousel.
     def initialize
       @doc = nil
       @cards = nil
@@ -33,15 +35,13 @@ module GoogleSearch
     end
 
     def find_srp_cards_anchors
-      # Condition for Van Gogh Paintings: Find div elements with an anchor child that itself has img child.
-      # The div must have a style attribute and it should != display:none. Then find the first anchor child.
+      # Van Gogh Paintings: Find 1st anchor child of divs with style and an anchor child with an img child
       artwork_cards_anchors = 'div:has(> a > img)[style] > a:first'
 
-      # Condition for Other Results: Find div elements with role=presentation attribute and style != display:none
-      # Then find the first child div of those divs and then find the first anchor child.
+      # Other Results: Find 1st anchor child of the 1st child div of divs with role=presentation
       books_albums_cards_anchors = 'div[role="presentation"] > div:first-child > a:first'
 
-      # Combine with OR (comma separator)
+      # Combine with OR/comma separator
       @doc.css("#{artwork_cards_anchors}, #{books_albums_cards_anchors}")
     rescue StandardError => e
       puts "Error finding SRP cards anchors: #{e.message}"
@@ -63,12 +63,11 @@ module GoogleSearch
     end
 
     def parse_card_name(card)
-      if card.at_css('img[alt][alt!=""]')&.attr('alt')
-        # If the card has an img child with alt text that is not empty, use that as the name
+      if card_has_img_with_alt?(card)
         card.at_css('img').attr('alt').strip
       else
-        # Otherwise find the name from the first div child of the div child that doesn't have an img child in the card
-        card.at_css('wp-grid-tile > div:not(:has(img)) > div:first-child').text.strip
+        # Find the name from the 1st div child of the div child that doesn't have an img child
+        card.at_css("#{BOOK_ALBUM_DETAIL_SELECTOR} > div:first-child").text.strip
       end
     rescue StandardError => e
       puts "Error finding SRP card name: #{e.message}"
@@ -76,14 +75,20 @@ module GoogleSearch
     end
 
     def parse_card_year(card)
-      if card.at_css('img[alt][alt!=""]')&.attr('alt')
+      if card_has_img_with_alt?(card)
         card.css('div > div').find { |div| div.text.strip.match?(/^\d{4}$/) }&.text&.strip
       else
-        card.at_css('wp-grid-tile > div:not(:has(img)) > div:last').text.strip
+        # Find the year from the last div child of the div child that doesn't have an img child
+        year = card.at_css("#{BOOK_ALBUM_DETAIL_SELECTOR} > div:last")&.text&.strip
+        year unless year.to_s.strip.empty?
       end
     rescue StandardError => e
       puts "Error finding SRP card year: #{e.message}"
       nil
+    end
+
+    def card_has_img_with_alt?(card)
+      card.at_css('img[alt][alt!=""]')
     end
 
     def parse_card_url(card)
@@ -107,25 +112,6 @@ module GoogleSearch
       puts "Error finding SRP card img src: #{e.message}"
       nil
     end
-
-    # def parse_img_data_from_script
-    #   @doc.css('script').each do |script|
-    #     text = script.text
-
-    #     next unless text.match?(/(?:s|ii)\s*=\s*/)
-
-    #     encoded_src = text[/var\s+s\s*=\s*['"]([^'"]+)['"]/, 1]
-    #     img_id = text[/var\s+ii\s*=\s*\[\s*['"]([^'"]+)['"]/, 1]
-
-    #     next unless encoded_src && img_id
-
-    #     full_decoded_src = "\"#{encoded_src}\"".undump
-    #     @images[img_id] = full_decoded_src
-    #   end
-    # rescue StandardError => e
-    #   puts "Error parsing image data: #{e.message}"
-    #   {}
-    # end
 
     def build_img_data_hash_from_script
       # Define the XPath query as a variable for clarity
