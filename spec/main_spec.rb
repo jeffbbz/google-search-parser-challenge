@@ -31,7 +31,7 @@ RSpec.describe HtmlToJsonFileProcessor do
     end
 
     after do
-      File.delete(output_json_file) if File.exist?(output_json_file)
+      Dir.glob(File.join(output_dir, '*')).each { |file| File.delete(file) if File.exist?(file) }
     end
   end
 
@@ -60,10 +60,12 @@ RSpec.describe HtmlToJsonFileProcessor do
     let(:van_gogh_html_file) { File.join(__dir__, '..', 'files', 'van-gogh-paintings.html') }
     let(:parsed_data) { GoogleSearch::Parser.new.parse_html_file(van_gogh_html_file) }
     let(:expected_van_gogh_json_file) { File.join(__dir__, '..', 'files', 'expected-array.json') }
+    let(:van_gogh_json_file) { File.join(__dir__, '..', 'output', 'van-gogh-paintings.json') }
+
 
     it 'checks if output/van-gogh-paintings.json matches files/expected-array.json' do
       processor.send(:output_to_json, van_gogh_html_file, parsed_data)
-      van_gogh_json_file = File.join(__dir__, '..', 'output', 'van-gogh-paintings.json')
+      # van_gogh_json_file = File.join(__dir__, '..', 'output', 'van-gogh-paintings.json')
 
       expect(File.exist?(van_gogh_json_file)).to be true
 
@@ -71,6 +73,10 @@ RSpec.describe HtmlToJsonFileProcessor do
       expected_van_gogh_content = JSON.parse(File.read(expected_van_gogh_json_file))
 
       expect(van_gogh_output_content).to eq(expected_van_gogh_content)
+    end
+
+    after do
+      File.delete(van_gogh_json_file) if File.exist?(van_gogh_json_file)
     end
   end
 end
