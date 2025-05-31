@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/b982a17e-4897-4d14-ab15-b3a2dae974de" width="300" alt="Vincent Van Gogh">
+
 # Extract Van Gogh Paintings Code Challenge
 
 ## Overview
@@ -55,3 +57,4 @@ Tests were written with RSpec. To run the tests:
    rspec
 ```
 
+<a href="https://www.flaticon.com/free-icons/vincent-van-gogh" title="vincent van gogh icons">Van gogh icon created by Freepik - Flaticon</a>
