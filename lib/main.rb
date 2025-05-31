@@ -3,6 +3,8 @@
 require 'json'
 require_relative 'parser'
 
+# This class is responsible for processing HTML files and converting them to JSON format.
+# It uses the GoogleSearch::Parser to parse the HTML content and then writes the output to JSON files.
 class HtmlToJsonFileProcessor
   def initialize
     @parser = GoogleSearch::Parser.new

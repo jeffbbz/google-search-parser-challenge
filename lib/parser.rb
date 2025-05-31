@@ -3,9 +3,15 @@
 require 'nokogiri'
 
 module GoogleSearch
+  # This class is responsible for parsing Google SRP HTML files to scrape info from the result card grid/carousel.
   class Parser
     BOOK_ALBUM_DETAIL_SELECTOR = 'wp-grid-tile > div:not(:has(img))'
-    # This class is responsible for parsing Google SRP HTML files to scrape info from the result card grid/carousel.
+    # Van Gogh Paintings: Find 1st anchor child of divs with style and an anchor child with an img child
+    ARTWORK_CARDS_ANCHORS_SELECTOR = 'div:has(> a > img)[style] > a:first'
+    # Other Results: Find 1st anchor child of the 1st child div of divs with role=presentation
+    BOOKS_ALBUMS_CARDS_ANCHORS_SELECTOR = 'div[role="presentation"] > div:first-child > a:first'
+    CARD_CONTAINER_TITLE_SELECTOR = 'div[aria-level="2"][role="heading"] > span'
+
     def initialize
       @doc = nil
       @cards = nil
@@ -20,32 +26,22 @@ module GoogleSearch
       @cards = find_srp_cards_anchors
       { "#{@card_container_title}": parse_srp_cards }
     rescue StandardError => e
-      puts "Error parsing file: #{e.message}"
-      {}
+      handle_error("Error parsing HTML file: #{file}", e, {})
     end
 
     private
 
     def find_srp_card_container_title
-      title_span = @doc.at_css('div[aria-level="2"][role="heading"] > span')
-      title_span&.text&.strip
+      title_span = @doc.at_css(CARD_CONTAINER_TITLE_SELECTOR)
+      title_span&.text&.strip&.downcase
     rescue StandardError => e
-      puts "Error finding SRP card container title: #{e.message}"
-      nil
+      handle_error('Error finding SRP card container title', e, nil)
     end
 
     def find_srp_cards_anchors
-      # Van Gogh Paintings: Find 1st anchor child of divs with style and an anchor child with an img child
-      artwork_cards_anchors = 'div:has(> a > img)[style] > a:first'
-
-      # Other Results: Find 1st anchor child of the 1st child div of divs with role=presentation
-      books_albums_cards_anchors = 'div[role="presentation"] > div:first-child > a:first'
-
-      # Combine with OR/comma separator
-      @doc.css("#{artwork_cards_anchors}, #{books_albums_cards_anchors}")
+      @doc.css("#{ARTWORK_CARDS_ANCHORS_SELECTOR}, #{BOOKS_ALBUMS_CARDS_ANCHORS_SELECTOR}")
     rescue StandardError => e
-      puts "Error finding SRP cards anchors: #{e.message}"
-      []
+      handle_error('Error finding SRP cards anchors', e, [])
     end
 
     def parse_srp_cards
@@ -58,8 +54,7 @@ module GoogleSearch
         card_data
       end.compact
     rescue StandardError => e
-      puts "Error parsing SRP card: #{e.message}"
-      {}
+      handle_error('Error parsing SRP cards', e, {})
     end
 
     def parse_card_name(card)
@@ -70,21 +65,23 @@ module GoogleSearch
         card.at_css("#{BOOK_ALBUM_DETAIL_SELECTOR} > div:first-child").text.strip
       end
     rescue StandardError => e
-      puts "Error finding SRP card name: #{e.message}"
-      nil
+      handle_error('Error finding SRP card name', e)
     end
 
     def parse_card_year(card)
-      if card_has_img_with_alt?(card)
-        card.css('div > div').find { |div| div.text.strip.match?(/^\d{4}$/) }&.text&.strip
-      else
-        # Find the year from the last div child of the div child that doesn't have an img child
-        year = card.at_css("#{BOOK_ALBUM_DETAIL_SELECTOR} > div:last")&.text&.strip
-        year unless year.to_s.strip.empty?
-      end
+      card_has_img_with_alt?(card) ? find_year_from_img_alt(card) : find_year_from_last_div_child(card)
     rescue StandardError => e
-      puts "Error finding SRP card year: #{e.message}"
-      nil
+      handle_error('Error finding SRP card year', e)
+    end
+
+    def find_year_from_img_alt(card)
+      card.css('div > div').find { |div| div.text.strip.match?(/^\d{4}$/) }&.text&.strip
+    end
+
+    def find_year_from_last_div_child(card)
+      # Find the year from the last div child of the div child that doesn't have an img child
+      year = card.at_css("#{BOOK_ALBUM_DETAIL_SELECTOR} > div:last")&.text&.strip
+      year unless year.to_s.strip.empty?
     end
 
     def card_has_img_with_alt?(card)
@@ -96,8 +93,7 @@ module GoogleSearch
       # remove client parameter and trailing & if exists
       url.include?('client=') ? url.gsub(/(client=[^&]+&?|&$)/, '') : url
     rescue StandardError => e
-      puts "Error finding SRP card URL: #{e.message}"
-      nil
+      handle_error('Error finding SRP card URL', e)
     end
 
     def parse_card_img_src(card)
@@ -109,12 +105,10 @@ module GoogleSearch
 
       @images[img['id']] || img['data-src']
     rescue StandardError => e
-      puts "Error finding SRP card img src: #{e.message}"
-      nil
+      handle_error('Error finding SRP card img src', e)
     end
 
     def build_img_data_hash_from_script
-      # Define the XPath query as a variable for clarity
       script_xpath = <<~XPATH
           //script[
           contains(., "s=") or
@@ -135,8 +129,12 @@ module GoogleSearch
         @images[img_id] = full_decoded_src
       end
     rescue StandardError => e
-      puts "Error parsing image data from script: #{e.message}"
-      {}
+      handle_error('Error building image data hash from script', e, {})
+    end
+
+    def handle_error(message, error, return_value = nil)
+      puts "#{message}: #{error.message}"
+      return_value
     end
   end
 end
