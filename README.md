@@ -1,8 +1,12 @@
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/b982a17e-4897-4d14-ab15-b3a2dae974de" width="300" alt="Vincent Van Gogh">
+</div>
+
 # Extract Van Gogh Paintings Code Challenge
 
 ## Overview
 
-This project is a code challenge to extract information about Van Gogh paintings and other similar searches from Google Search Result Pages (SRP). It uses Ruby and the Nokogiri gem to parse the HTML and converting the extracted data into JSON.
+This project is a code challenge to extract information about Van Gogh paintings and other similar searches from Google Search Result Pages (SRP). It uses Ruby and the Nokogiri gem to parse the HTML and convert the extracted data into JSON.
 
 ## Components
 
@@ -55,3 +59,4 @@ Tests were written with RSpec. To run the tests:
    rspec
 ```
 
+<a href="https://www.flaticon.com/free-icons/vincent-van-gogh" title="vincent van gogh icons">Van gogh icon created by Freepik - Flaticon</a>
