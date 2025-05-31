@@ -1,4 +1,6 @@
-<img src="https://github.com/user-attachments/assets/b982a17e-4897-4d14-ab15-b3a2dae974de" width="300" alt="Vincent Van Gogh">
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/b982a17e-4897-4d14-ab15-b3a2dae974de" width="300" alt="Vincent Van Gogh">
+</div>
 
 # Extract Van Gogh Paintings Code Challenge
 
