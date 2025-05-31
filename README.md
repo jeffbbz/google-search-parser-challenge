@@ -6,7 +6,7 @@
 
 ## Overview
 
-This project is a code challenge to extract information about Van Gogh paintings and other similar searches from Google Search Result Pages (SRP). It uses Ruby and the Nokogiri gem to parse the HTML and converting the extracted data into JSON.
+This project is a code challenge to extract information about Van Gogh paintings and other similar searches from Google Search Result Pages (SRP). It uses Ruby and the Nokogiri gem to parse the HTML and convert the extracted data into JSON.
 
 ## Components
 
